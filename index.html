@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title></title>
 <style type="text/css">
-	html,body{padding: 0px;margin: 0px}
+	html,body{padding: 0px;margin: 0px;width: 100%;height: 100%;}
 	a{
 		color: #337ab7;
 		text-decoration: none;
@@ -40,6 +40,27 @@
 		line-height: 1;
 		color: #777777;
 	}
+	.code-comment{
+		font-family: Consolas,Inconsolata,Courier,monospace;
+		font-size: 14px;
+		line-height: 14px;
+		text-align: left;
+		width: 400px;
+		position: absolute;
+	}
+
+	.bugfont{
+		display: none;
+		text-align: center;
+		vertical-align:middle;
+		width: 40px;
+		height: 40px;
+		font-size:20px;
+		font-weight: bold;
+		line-height: 20px;
+		position: absolute;
+	}
+
 </style>
 <script>
 </script>
@@ -67,38 +88,82 @@
 		</h3>
 		<h6 id="message1" class="text-muted">都是九年义务教育.... 为何别人....人还是得有追<span>术</span>、信仰的....</h6>
 		<h6 id="message2" style="height: 150px;"></h6>
-		<div style="display: flex;justify-content:center;">
-		<pre id="gold" style="width: 0px;display: none;">
-                            _ooOoo_
-                           o8888888o
-                           88" . "88
-                           (| -_- |)
-                            O\ = /O
-                        ____/`---'\____
-                      .   ' \\| |// `.
-                       / \\||| : |||// \
-                     / _||||| -:- |||||- \
-                       | | \\\ - /// | |
-                     | \_| ''\---/'' | |
-                      \ .-\__ `-` ___/-. /
-                   ___`. .' /--.--\ `. . __
-                ."" '< `.___\_<|>_/___.' >'"".
-               | | : `- \`.;`\ _ /`;.`/ - ` : | |
-                 \ \ `-. \_ __\ /__ _/ .-` / /
-         ======`-.____`-.___\_____/___.-`____.-'======
-                            `=---='
 
-         .............................................
-                  佛祖镇楼                  BUG辟易
-		</pre>
-		</div>
+<pre id="gold" class="code-comment" style="display: none;">
+<code>
+                    _ooOoo_
+                   o8888888o
+                   88" . "88
+                   (| -_- |)
+                    O\ = /O
+                ____/`---'\____
+              .   ' \\| |// `.
+               / \\||| : |||// \
+             / _||||| -:- |||||- \
+               | | \\\ - /// | |
+             | \_| ''\---/'' | |
+              \ .-\__ `-` ___/-. /
+           ___`. .' /--.--\ `. . __
+        ."" '< `.___\_<|>_/___.' >'"".
+       | | : `- \`.;`\ _ /`;.`/ - ` : | |
+         \ \ `-. \_ __\ /__ _/ .-` / /
+ ======`-.____`-.___\_____/___.-`____.-'======
+                    `=---='
+ .............................................
+          佛祖镇楼                  BUG辟易
+</code>
+</pre>
 	</div>
+
+
+	<div id="bugFont" class="bugfont">求</div>
+
     <div style="position:fixed;bottom: 0px;text-align: center;height: 40px;line-height: 20px;font-size: 12px;color: #ccc;background: #3e3e69;width: 100%;">
     <a href="http://www.miitbeian.gov.cn"  style="color: #fff" target="_blank">浙ICP备17028784号</a>
     &nbsp;<br/>
     github:<a href="https://jxh150535011.github.io/" style="color: #fff" target="_blank">https://jxh150535011.github.io/</a> for mcl
     </div>
     <script type="text/javascript">
+    	if(!Array.prototype.forEach){
+    		Array.prototype.forEach = function(fn){
+    			for (var i =0,len = this.length; i < len; i++) {
+    				fn&&fn(this[i],i);
+    			}
+    		}
+    	}
+        function cssTranslate (target,value,fn) {
+            var o = target && target.style;
+            if(o){
+                //o.webkitTransitionDuration = o.MozTransitionDuration = o.msTransitionDuration = o.OTransitionDuration = o.transitionDuration = (time||0) + 'ms';
+                for (var key in value) {
+                	if(!value.hasOwnProperty(key))continue;
+                	var val = value[key];
+                    o[key]=val;
+                    if(key=='transform')
+                        o.webkitTransform = o.msTransform = o.MozTransform = o.OTransform= val;
+                    else if(key=='transition')
+						o.webkitTransition = o.MozTransition = o.msTransition = o.OTransition = val;
+                }
+                //if(timing){
+                    //o.webkitTransitionTimingFunction = o.msTransitionTimingFunction = o.MozTransitionTimingFunction= o.OTransitionTimingFunction = o.transitionTimingFunction = timing;
+                //}
+            }
+            if(target&&fn){
+                var events=['webkitTransitionEnd','msTransitionEnd','oTransitionEnd','otransitionend','transitionend'];
+                var proxy=function(){
+                    events.forEach(function(eventName){
+                        target.removeEventListener(eventName,proxy,false);
+                    });
+                    return fn();
+                };
+                events.forEach(function(eventName){
+                    target.addEventListener(eventName,proxy,false);
+                });
+            }
+        };
+		window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+		window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame;
+
 		(function() {
 			var $message = document.getElementById('message2'),message = [$message.innerHTML];
 			var appendMessage = function(msg,time){
@@ -110,39 +175,110 @@
 			var time = 0;
 			appendMessage('<p class="text-warning">嗯 年轻人，我感受到了你的虔诚!!!</p>',time+=2000);
 			appendMessage('<p>... ...</p>',time+=2000);
-			appendMessage('<p class="text-warning">嗯 我要显现了 让你看看我的真身吧!</p>',time+=2000);
-			appendMessage('<p>啊... 佛主??!</p>',time+=2000);
-			appendMessage('<p class="text-warning">因为你的虔诚，我决定纠正出你的一个错别字!</p>',time+=2000);
+			appendMessage('<p class="text-warning">嗯 我要显现了</p>',time+=2000);
+			appendMessage('<p>啊... 佛主??</p>',time+=2000);
+			appendMessage('<p class="text-warning">咦 发现一个bug! 吼 封印 南无阿弥陀佛~~~~</p>',time+=2000);
 			appendMessage('<p>额... ...感谢佛主大人!</p>',time+=2000);
 			setTimeout(function(){
 				$message.innerHTML = '';
 			},time+2000);
 		})();
 
-		window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-
 		(function() {
 			var $message = document.getElementById('message1'),
 				$gold = document.getElementById('gold'),
-				timer = null,
-				time = 0
+				$font = document.getElementById('bugFont'),
+				moveTimer = null,
+				time = 0,
+				clientWidth = document.documentElement.offsetWidth || document.body.clientWidth,
+				clientHeight = document.documentElement.offsetHeight || document.body.clientHeight,
+				screenRect = {
+					top:20,
+					left:20,
+					bottom:clientHeight -400- 20,
+					right:clientWidth -400 - 40 -20
+				},
+				targetLeft = Math.round((screenRect.right-screenRect.left)/2+screenRect.left),
+				targetTop = screenRect.bottom,
+				vector = [Math.random()-0.5,Math.random()-0.5]
 				;
+
 			var getRandomColor = function(){
 				return [
 					'#',
-					Math.round(Math.random()*256).toString(16),
-					Math.round(Math.random()*256).toString(16),
-					Math.round(Math.random()*256).toString(16)
+					Math.round(Math.random()*256+256).toString(16).substr(1),
+					Math.round(Math.random()*256+256).toString(16).substr(1),
+					Math.round(Math.random()*256+256).toString(16).substr(1)
 				].join('')
 			},step = function(){
 				//timer = window.requestAnimationFrame(step);
-			};
-
-			setTimeout(function(){
-				$gold.style.display = 'inline';
+			},
+			getRandomOffset = function(){
+				return [
+					Math.round(Math.random() * clientWidth),
+					Math.round(Math.random() * clientHeight)
+				]
+			},
+			aniColor = function(){
 				setInterval(function(){
 					$gold.style.color = getRandomColor();
 				},700);
+			},
+			aniScale = function(scale){
+				cssTranslate($gold,{
+					transition:'transform 400ms 0ms cubic-bezier(.44,.86,.91,1.24)',
+					transform:'scale3d('+ [scale,scale,1].join(',') +')'
+				});
+			},
+			aniBug = function(){
+				var pos = getRandomOffset();
+				$font.style.left = (pos[0]-40)+'px';
+				$font.style.top = (pos[1]-40)+'px';
+			},
+			refersh = function(x,y){
+				targetLeft = Math.min(targetLeft,screenRect.right);
+				targetLeft = Math.max(targetLeft,screenRect.left);
+				targetTop = Math.min(targetTop,screenRect.bottom);
+				targetTop = Math.max(targetTop,screenRect.top);
+				$gold.style.left = targetLeft+'px';
+				$gold.style.top = targetTop+'px';
+			},
+			shake = function(){
+				targetTop += Math.round(Math.random()*10-5);
+				targetLeft += Math.round(Math.random()*10-5);
+			},
+			move = function(){
+				targetLeft += Math.round(10 * vector[0]);
+				targetTop += Math.round(10 * vector[1]);
+				if(targetLeft<=screenRect.left || targetLeft>=screenRect.right) vector[0] = -vector[0];
+				if(targetTop<=screenRect.top || targetTop>=screenRect.bottom) vector[1] = -vector[1];
+			},
+			aniStart = function(fn){
+				refersh();
+				fn();
+				moveTimer && window.cancelAnimationFrame(moveTimer);
+				moveTimer = window.requestAnimationFrame(function(){
+					aniStart(fn);
+				});
+			},
+			aniStop = function(){
+				moveTimer && window.cancelAnimationFrame(moveTimer);
+			}
+			;
+
+
+
+			setTimeout(function(){
+				$gold.style.display = 'block';
+				$font.style.display = 'table-cell';
+
+				aniBug();
+				//aniColor();
+				aniStart(move);
+				setTimeout(function(){
+					aniScale(1.3);
+					aniStop(shake);
+				},2000);
 			},time+=1000);//7500
 
 		})();
