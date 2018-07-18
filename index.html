@@ -53,12 +53,24 @@
 		display: none;
 		text-align: center;
 		vertical-align:middle;
-		width: 40px;
-		height: 40px;
-		font-size:20px;
+		width: 80px;
+		height: 80px;
+		font-size:40px;
 		font-weight: bold;
-		line-height: 20px;
+		line-height: 80px;
 		position: absolute;
+	}
+
+	@keyframes rotate {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+	.ani-rotate{
+		animation: rotate 1s linear infinite; 
 	}
 
 </style>
@@ -86,7 +98,7 @@
 		<small style="font-size: 12px" class="text-muted">别人家的:<a class="text-warning" href="http://momentjs.cn/" target="_blank">momentjs</a>
 		</small>
 		</h3>
-		<h6 id="message1" class="text-muted">都是九年义务教育.... 为何别人....人还是得有追<span>术</span>、信仰的....</h6>
+		<h6 id="message1" class="text-muted">都是九年义务教育.... 为何别人....人还是得有追<span id="fixFont">术</span>、信仰的....</h6>
 		<h6 id="message2" style="height: 150px;"></h6>
 
 <pre id="gold" class="code-comment" style="display: none;">
@@ -115,8 +127,9 @@
 </pre>
 	</div>
 
-
-	<div id="bugFont" class="bugfont">求</div>
+	<div id="bugFont" class="bugfont">
+		术
+	</div>
 
     <div style="position:fixed;bottom: 0px;text-align: center;height: 40px;line-height: 20px;font-size: 12px;color: #ccc;background: #3e3e69;width: 100%;">
     <a href="http://www.miitbeian.gov.cn"  style="color: #fff" target="_blank">浙ICP备17028784号</a>
@@ -131,36 +144,15 @@
     			}
     		}
     	}
-        function cssTranslate (target,value,fn) {
-            var o = target && target.style;
-            if(o){
-                //o.webkitTransitionDuration = o.MozTransitionDuration = o.msTransitionDuration = o.OTransitionDuration = o.transitionDuration = (time||0) + 'ms';
-                for (var key in value) {
-                	if(!value.hasOwnProperty(key))continue;
-                	var val = value[key];
-                    o[key]=val;
-                    if(key=='transform')
-                        o.webkitTransform = o.msTransform = o.MozTransform = o.OTransform= val;
-                    else if(key=='transition')
-						o.webkitTransition = o.MozTransition = o.msTransition = o.OTransition = val;
-                }
-                //if(timing){
-                    //o.webkitTransitionTimingFunction = o.msTransitionTimingFunction = o.MozTransitionTimingFunction= o.OTransitionTimingFunction = o.transitionTimingFunction = timing;
-                //}
-            }
-            if(target&&fn){
-                var events=['webkitTransitionEnd','msTransitionEnd','oTransitionEnd','otransitionend','transitionend'];
-                var proxy=function(){
-                    events.forEach(function(eventName){
-                        target.removeEventListener(eventName,proxy,false);
-                    });
-                    return fn();
-                };
-                events.forEach(function(eventName){
-                    target.addEventListener(eventName,proxy,false);
-                });
-            }
-        };
+    	if(!Array.prototype.map){
+    		Array.prototype.map = function(fn){
+    			var result = [];
+    			this.forEach(function(value,index){
+    				result.push(fn?fn(value,index):value);
+    			});
+    			return result;
+    		}
+    	}
 		window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 		window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame;
 
@@ -182,6 +174,131 @@
 			setTimeout(function(){
 				$message.innerHTML = '';
 			},time+2000);
+		})();
+
+		var Animation = (function(){
+
+
+			var cssTranslate = function(target,value,fn) {
+			    var o = target && target.style;
+			    if(o){
+			        //o.webkitTransitionDuration = o.MozTransitionDuration = o.msTransitionDuration = o.OTransitionDuration = o.transitionDuration = (time||0) + 'ms';
+			        for (var key in value) {
+			        	if(!value.hasOwnProperty(key))continue;
+			        	var val = value[key];
+			            o[key]=val;
+			            if(key=='transform')
+			                o.webkitTransform = o.msTransform = o.MozTransform = o.OTransform= val;
+			            else if(key=='transition')
+							o.webkitTransition = o.MozTransition = o.msTransition = o.OTransition = val;
+			        }
+			        //if(timing){
+			            //o.webkitTransitionTimingFunction = o.msTransitionTimingFunction = o.MozTransitionTimingFunction= o.OTransitionTimingFunction = o.transitionTimingFunction = timing;
+			        //}
+			    }
+			    if(target&&fn){
+			        var events=['webkitTransitionEnd','msTransitionEnd','oTransitionEnd','otransitionend','transitionend'];
+			        var proxy=function(){
+			            events.forEach(function(eventName){
+			                target.removeEventListener(eventName,proxy,false);
+			            });
+			            return fn();
+			        };
+			        events.forEach(function(eventName){
+			            target.addEventListener(eventName,proxy,false);
+			        });
+			    }
+			}
+
+			function animationQueueClass($target){
+				this.$target = $target;
+				this.options = {};
+				this.queue = [];
+				this.time = 0;
+			}
+			animationQueueClass.prototype = {
+				constructor : animationQueueClass,
+				continueWith:function(options){
+					this.queue.push(options);
+					return this;
+				},
+				start:function(immediate){
+					var that = this;
+					//if(immediate) return this.process(this.queue.shift());
+					window.requestAnimationFrame(function(){
+						that.process(that.queue.shift());
+					});
+				},
+				process:function(options){
+
+					if(!options)return;
+					for (key in options) {
+						if(!options.hasOwnProperty(key))continue;
+						this.options[key]=options[key];
+					}
+
+					var that = this,options = this.options,callback = options.callback;
+					var duration = options['duration']||0,delay = options['delay']||0;
+
+
+					options.callback = null;
+					var transition = [
+						options['property']||'all',
+						duration+'ms',
+						options['timing']||'ease',
+						delay+'ms'
+					].join(' ');
+
+					var perspective = options.perspective || 0,
+						scale = options.scale || 1,
+						scale3d = [options.scaleX||scale,options.scaleY||scale,options.scaleZ||scale],//x y z
+						rotate = options.rotate || 0,
+						rotate3d = [options.rotateX||rotate,options.rotateY||rotate,options.rotateZ||rotate],
+						translate = options.translate || 0,
+						translate3d = [options.translateX||translate,options.translateY||translate,options.translateZ||translate]
+						;
+					//rotate3d(1,1,1,0deg)
+					var transform = [
+						perspective>0&&('perspective('+perspective+'px)')||'',
+						options.scale !== false && 'scale3d('+scale3d.join(',')+')' || '',
+						rotate3d.map(function(value,index){
+							if(value==0)return '';
+							return (['rotateX','rotateY','rotateZ'][index]||'rotateX')+'('+value+'deg)';
+						}).join(' '),
+						translate3d.map(function(value,index){
+							if(value==0)return '';
+							return (['translateX','translateY','translateZ'][index]||'translateX')+'('+value+'px)';
+						}).join(' ')
+					].join(' ');
+
+					var translateEnd = function(){
+						callback&&callback();
+						that.start(true);
+					};
+
+					if(duration<1&&delay<1){
+						this.cssTranslate(this.$target,{
+							transition:transition,
+							transform:transform
+						});
+						translateEnd();
+					}
+					else{
+						this.cssTranslate(this.$target,{
+							transition:transition,
+							transform:transform
+						},translateEnd);
+					}
+
+				},
+				cssTranslate:cssTranslate
+			};
+			return {
+				getInstance:function($target){
+					return new animationQueueClass($target);
+				},
+				cssTranslate:cssTranslate
+			}
 		})();
 
 		(function() {
@@ -217,23 +334,68 @@
 				return [
 					Math.round(Math.random() * clientWidth),
 					Math.round(Math.random() * clientHeight)
-				]
+				];
 			},
 			aniColor = function(){
 				setInterval(function(){
 					$gold.style.color = getRandomColor();
 				},700);
 			},
-			aniScale = function(scale){
-				cssTranslate($gold,{
-					transition:'transform 400ms 0ms cubic-bezier(.44,.86,.91,1.24)',
+			aniScale = function($target,scale){
+				Animation.cssTranslate($target,{
+					transition:'transform 300ms cubic-bezier(.44,.86,.91,1.24) 0ms',
 					transform:'scale3d('+ [scale,scale,1].join(',') +')'
 				});
 			},
-			aniBug = function(){
-				var pos = getRandomOffset();
-				$font.style.left = (pos[0]-40)+'px';
-				$font.style.top = (pos[1]-40)+'px';
+			startBugAnimation = function(){
+				var pos = getRandomOffset(),
+					$bugFont = document.getElementById('bugFont'),
+					$fixFont = document.getElementById('fixFont')
+				;
+				$bugFont.style.display = 'table-cell';
+				pos[0] = Math.max((pos[0]-80),80);
+				pos[1] = Math.max((pos[1]-80),80);
+
+				$bugFont.style.left = pos[0]+'px';
+				$bugFont.style.top = pos[1]+'px';
+
+				var targetPos = $fixFont.getBoundingClientRect && $fixFont.getBoundingClientRect()||{
+					left:$fixFont.offsetLeft,
+					top:$fixFont.offsetTop
+				};
+
+
+				var ani = Animation.getInstance($bugFont);
+				ani.continueWith({
+					property:'transform',
+					timing:'cubic-bezier(.44,.86,.91,1.24)',
+					perspective:100
+				}).continueWith({
+					duration:400,
+					scale:2
+				}).continueWith({
+					timing:'',
+					rotateY:90,
+					callback:function(){
+						$font.innerHTML ='求'; 
+					}
+				}).continueWith({
+					duration:0,
+					rotateY:270
+				}).continueWith({
+					duration:400,
+					rotateY:0,
+					callback:function(){
+						$bugFont.innerHTML ='<div class="ani-rotate">求</div>';
+						//$bugFont.style.webkitTransformOrigin = '0% 0%';
+					}
+				}).continueWith({
+					duration:2000,
+					scale:0.5,
+					translateX:(targetPos.left-pos[0])*2,
+					translateY:(targetPos.top-pos[1])*2
+				}).start();
+				
 			},
 			refersh = function(x,y){
 				targetLeft = Math.min(targetLeft,screenRect.right);
@@ -270,13 +432,11 @@
 
 			setTimeout(function(){
 				$gold.style.display = 'block';
-				$font.style.display = 'table-cell';
-
-				aniBug();
+				startBugAnimation();
 				//aniColor();
 				aniStart(move);
 				setTimeout(function(){
-					aniScale(1.3);
+					aniScale($gold,1.3);
 					aniStop(shake);
 				},2000);
 			},time+=1000);//7500
