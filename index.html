@@ -53,11 +53,11 @@
 		display: none;
 		text-align: center;
 		vertical-align:middle;
-		width: 80px;
-		height: 80px;
-		font-size:40px;
+		width: 48px;
+		height: 48px;
+		font-size:48px;
 		font-weight: bold;
-		line-height: 80px;
+		line-height: 48px;
 		position: absolute;
 	}
 
@@ -72,6 +72,50 @@
 	.ani-rotate{
 		animation: rotate 1s linear infinite; 
 	}
+	@keyframes font-gradient {
+		from {
+	        background: linear-gradient(to top,#ff7875 0%, #777777 0%);
+		}
+		to {
+			background: linear-gradient(to top,#ff7875 100%, #777777 100%);
+		}
+	}
+	.ani-font-gradient{
+	    -webkit-background-clip: text;
+	    -moz-background-clip: text;
+	    background-clip: text;
+		color: transparent;
+		animation: font-gradient 1s linear; 
+	}
+
+	.ani-font-translate span{
+		position: absolute;
+		overflow: hidden;
+		top:0px;left: 0px;
+		width: 12px;height: 12px;
+		color: red;
+		transition:transform 1000ms linear 0ms;
+		background: #fff;
+	}
+	.ani-font-translate .s1{
+		transform: translateY(12px);
+
+	}
+	.ani-font-translate .s2{
+		transform: translateY(-12px);
+	}
+	.ani-font-translate.active .s1{
+		transform: translateY(0px);
+	}
+	.ani-font-translate.active .s2{
+		transform: translateY(0px);
+	}
+
+	#fixFont {
+		position: relative;
+		overflow: hidden;
+	}
+
 
 </style>
 <script>
@@ -178,9 +222,11 @@
 
 		var Animation = (function(){
 
+			var cssKeys = {'fontSize':'px','width':'px','height':'px','opacity':''};
 
 			var cssTranslate = function(target,value,fn) {
 			    var o = target && target.style;
+
 			    if(o){
 			        //o.webkitTransitionDuration = o.MozTransitionDuration = o.msTransitionDuration = o.OTransitionDuration = o.transitionDuration = (time||0) + 'ms';
 			        for (var key in value) {
@@ -191,6 +237,8 @@
 			                o.webkitTransform = o.msTransform = o.MozTransform = o.OTransform= val;
 			            else if(key=='transition')
 							o.webkitTransition = o.MozTransition = o.msTransition = o.OTransition = val;
+						else if(cssKeys.hasOwnProperty(key))
+							o[key]=val;
 			        }
 			        //if(timing){
 			            //o.webkitTransitionTimingFunction = o.msTransitionTimingFunction = o.MozTransitionTimingFunction= o.OTransitionTimingFunction = o.transitionTimingFunction = timing;
@@ -232,7 +280,7 @@
 				process:function(options){
 
 					if(!options)return;
-					for (key in options) {
+					for (var key in options) {
 						if(!options.hasOwnProperty(key))continue;
 						this.options[key]=options[key];
 					}
@@ -276,18 +324,21 @@
 						that.start(true);
 					};
 
+					var css = {
+						transition:transition,
+						transform:transform
+					};
+					for (var key in this.options) {
+						if(!this.options.hasOwnProperty(key) || !cssKeys.hasOwnProperty(key))continue;
+						css[key]=this.options[key]+cssKeys[key];
+					}
+
 					if(duration<1&&delay<1){
-						this.cssTranslate(this.$target,{
-							transition:transition,
-							transform:transform
-						});
+						this.cssTranslate(this.$target,css);
 						translateEnd();
 					}
 					else{
-						this.cssTranslate(this.$target,{
-							transition:transition,
-							transform:transform
-						},translateEnd);
+						this.cssTranslate(this.$target,css,translateEnd);
 					}
 
 				},
@@ -352,6 +403,14 @@
 					$bugFont = document.getElementById('bugFont'),
 					$fixFont = document.getElementById('fixFont')
 				;
+				$fixFont.innerHTML = '<span class="s1"><span class="s2">求</span></span>术';
+				$fixFont.className = 'ani-font-translate';
+				window.requestAnimationFrame(function(){
+					$fixFont.className = 'ani-font-translate active';
+				});
+				return;
+				;
+
 				$bugFont.style.display = 'table-cell';
 				pos[0] = Math.max((pos[0]-80),80);
 				pos[1] = Math.max((pos[1]-80),80);
@@ -387,13 +446,24 @@
 					rotateY:0,
 					callback:function(){
 						$bugFont.innerHTML ='<div class="ani-rotate">求</div>';
-						//$bugFont.style.webkitTransformOrigin = '0% 0%';
+						$bugFont.style.webkitTransformOrigin = '0% 0%';
 					}
 				}).continueWith({
 					duration:2000,
-					scale:0.5,
-					translateX:(targetPos.left-pos[0])*2,
-					translateY:(targetPos.top-pos[1])*2
+					scale:0.25,
+					translateX:(targetPos.left-pos[0])*4,
+					translateY:(targetPos.top-pos[1])*4
+				}).continueWith({
+					property:'all',
+					duration:500,
+					translateX:(targetPos.left-pos[0])/0.75-18,
+					translateY:(targetPos.top-pos[1])/0.75-18,
+					timing:'cubic-bezier(.44,.86,.91,1.24)',
+					opacity:0,
+					scale:0.75,
+					callback:function(){
+						
+					}
 				}).start();
 				
 			},
@@ -429,7 +499,8 @@
 			;
 
 
-
+				startBugAnimation();
+				return;
 			setTimeout(function(){
 				$gold.style.display = 'block';
 				startBugAnimation();
