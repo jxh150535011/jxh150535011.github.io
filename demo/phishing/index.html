@@ -1,0 +1,19 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>钓鱼</title>
+</head>
+<body>
+<script>
+    const match = window.location.href.match(/(RETURN_URL=(.*?)([?&]|$))/)
+    const url = match && match[2];
+    if (url){
+      window.location.href = decodeURIComponent(url);
+    }
+</script>
+</body>
+</html>
