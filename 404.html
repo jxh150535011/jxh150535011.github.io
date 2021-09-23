@@ -12,5 +12,12 @@
     长度都凑不够，广告位招租拉~~~~~~~~~<br/>
     留下我的QQ、Email 150535011@qq.com<br/>
     github:<a href="https://jxh150535011.github.io/" target="_blank">https://jxh150535011.github.io/</a>
+<script>
+    const match = window.location.href.match(/(RETURN_URL=(.*?)([?&]|$))/)
+    const url = match && match[2];
+    if (url){
+      window.location.href = decodeURIComponent(url);
+    }
+</script>
 </body>
 </html>
